@@ -10,11 +10,13 @@ from typing import Type
 from chatbot_deeplink.base import BaseDeepLink
 from chatbot_deeplink.chatgpt import ChatGPT
 from chatbot_deeplink.claude import Claude, ClaudeCode
+from chatbot_deeplink.doubao import Doubao
 
 PROVIDERS: dict[str, Type[BaseDeepLink]] = {
     "claude": Claude,
     "claude-code": ClaudeCode,
     "chatgpt": ChatGPT,
+    "doubao": Doubao,
 }
 
 

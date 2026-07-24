@@ -28,3 +28,25 @@ https://<host>/<path>?q=<encoded_prompt>
 ## 项目里的用法
 
 参考同目录下按 provider 命名的文件 (如 `claude.md`, `chatgpt.md`), 记录每个已确认的 deep link 格式: host, path, query 参数名, 以及已知的行为差异. 尚未确认机制的 provider 不建立对应文件, 避免猜测性文档误导后续开发.
+
+## 调研状态 (截至 2026-07-23)
+
+| Provider | 状态 | 说明 |
+|---|---|---|
+| ChatGPT | ✅ 可用 | `chatgpt.com/?q=`, 见 `chatgpt.md` |
+| Claude | ✅ 可用 | `claude.ai/new?q=` + `claude-cli://open?q=`, 见 `claude.md` |
+| Google AI Mode | ✅ 实测可用 | `google.com/search?q=<p>&udm=50`, Gemini 驱动且自动提交, 见 `gemini.md` |
+| Gemini 网页版 | ❓ 未能确认 | 旁证倾向原生不支持, 但缺决定性实测, 见 `gemini.md` |
+| Doubao 豆包 | ✅ 可用 | `url-action?action={JSON}`, **不是 `?q=`**, 见 `doubao.md` |
+| DeepSeek | ❓ 未能确认 | 见下 |
+| Grok / Zai / Kimi / MiniMax | ⬜ 尚未调研 | -- |
+
+**DeepSeek**: 没有任何公开文档描述 `chat.deepseek.com` 的 URL 参数, 汇总各家 URL 模板的社区帖子里也没有收录它. 实测 `https://chat.deepseek.com/?q=hello%20world` 在**未登录**状态下被重定向到登录页, 且该站有反自动化环境检测. **要确认只能由已登录的真人手动访问一次带 `?q=` 的 URL, 看输入框是否预填.**
+
+> "查不到 ≠ 不支持". 在真人实测之前, 不要在库里凭猜测实现.
+
+### 调研方法论教训 (2026-07-23)
+
+1. **不要假设参数名是 `?q=`.** 豆包用的是 `url-action?action={"pluginId":"Send_Message","payload":{"text":...}}`, 和 `?q=` 毫无关系. 先搜索该产品实际怎么被接进"浏览器地址栏搜索引擎", 那个 URL 模板 (带 `%s` 的那种) 往往就是答案.
+2. **浏览器工具的 tab 信息可能只显示 origin.** 曾据此误判 "query 被重定向丢弃", 实为显示截断. 判断真实 URL 必须执行 `location.href` 核对.
+3. **未登录 / 被地区封禁的实测不能作为否定证据.** Gemini 需登录才渲染输入框, 豆包对境外 IP 直接 region-ban -- 这两种情况下什么都测不出来, 只能标 "未确认", 不能标 "不支持".
